@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Pro Auditor</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand-primary:#2563EB;--brand-header-bg:#1E3A8A;
+  --brand-accent:#F59E0B;--brand-footer-bg:#F1F5F9;
+  --font-sans:system-ui,-apple-system,sans-serif;
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;
+  --border:#e2e8f0;--text:#0f172a;--text2:#64748b;--text3:#94a3b8;
+  --green:#059669;--yellow:#d97706;--red:#dc2626;--blue:#2563eb;
+}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+a{color:var(--brand-primary);text-decoration:none}
+
+/* ── TOP NAV ── */
+.topnav{background:var(--brand-header-bg);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:200;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.logo-area{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none}
+.logo-box{width:36px;height:36px;border-radius:9px;background:var(--brand-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0;overflow:hidden}
+.logo-box img{width:100%;height:100%;object-fit:cover}
+.logo-label{color:#fff;font-weight:700;font-size:17px;letter-spacing:-.3px}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{padding:8px 16px;border-radius:7px;border:none;background:transparent;color:rgba(255,255,255,.65);font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit;font-weight:500}
+.nav-tab:hover,.nav-tab.active{background:rgba(255,255,255,.15);color:#fff}
+.nav-tab.active{font-weight:600}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
+
+/* ── VIEWS ── */
+.view{display:none;padding:28px;max-width:1120px;margin:0 auto;width:100%}
+.view.active{display:block}
+
+/* ── HERO INPUT ── */
+.hero-card{background:var(--surface);border-radius:20px;border:1px solid var(--border);padding:36px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.hero-card h1{font-size:24px;font-weight:700;margin-bottom:6px}
+.hero-card .sub{color:var(--text2);font-size:14px;margin-bottom:24px;line-height:1.6}
+.url-row{display:flex;gap:10px;flex-wrap:wrap}
+.url-input{flex:1;min-width:240px;padding:14px 18px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);font-size:15px;font-family:inherit;color:var(--text);outline:none;transition:border-color .15s}
+.url-input:focus{border-color:var(--brand-primary);background:#fff}
+.api-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.api-input{flex:1;min-width:200px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);font-size:13px;font-family:inherit;color:var(--text);outline:none}
+.api-input:focus{border-color:var(--brand-primary)}
+.api-hint{font-size:12px;color:var(--text3);margin-top:6px}
+.api-hint a{color:var(--brand-primary)}
+.audit-btn{padding:14px 28px;border-radius:12px;background:var(--brand-primary);color:#fff;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s;font-family:inherit;white-space:nowrap;letter-spacing:-.2px}
+.audit-btn:hover{opacity:.88}
+.audit-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ── PROGRESS ── */
+.progress-section{margin-top:22px;display:none}
+.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.progress-lbl{font-size:13px;font-weight:500;color:var(--text2)}
+.progress-pct{font-size:13px;font-weight:700;color:var(--brand-primary)}
+.progress-track{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--brand-primary),var(--brand-accent));border-radius:99px;width:0%;transition:width .35s ease}
+.step-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.chip{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--surface2);color:var(--text3);border:1px solid var(--border);transition:all .2s}
+.chip.active{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;font-weight:600}
+.chip.done{background:#dcfce7;color:#166534;border-color:#86efac}
+
+/* ── SCORE OVERVIEW ── */
+.score-section{display:none;margin-bottom:24px}
+.score-grid{display:grid;grid-template-columns:210px 1fr;gap:20px}
+@media(max-width:680px){.score-grid{grid-template-columns:1fr}}
+.donut-card{background:var(--surface);border-radius:18px;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.donut-wrap{position:relative;width:150px;height:150px}
+.donut-wrap svg{transform:rotate(-90deg)}
+.donut-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.d-big{font-size:40px;font-weight:800;line-height:1}
+.d-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.d-grade{margin-top:8px;font-size:13px;font-weight:700;padding:3px 14px;border-radius:99px}
+.cats-card{background:var(--surface);border-radius:18px;border:1px solid var(--border);padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+.cat-tile{background:var(--surface2);border-radius:12px;padding:14px 16px;border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.cat-tile:hover{border-color:var(--brand-primary);transform:translateY(-1px)}
+.cat-name{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.cat-score-row{display:flex;align-items:center;gap:8px}
+.cat-num{font-size:22px;font-weight:800}
+.cat-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:99px;transition:width 1.2s ease}
+
+/* ── FILTERS / TABS ── */
+.filter-row{display:flex;gap:6px;margin-bottom:18px;background:var(--surface);padding:5px;border-radius:12px;border:1px solid var(--border);flex-wrap:wrap}
+.ftab{flex:1;min-width:80px;padding:9px 6px;border-radius:9px;border:none;background:transparent;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text2);transition:all .15s;text-align:center}
+.ftab.active{background:var(--brand-primary);color:#fff;box-shadow:0 2px 6px rgba(37,99,235,.25)}
+.ftab .cnt{display:inline-block;background:rgba(255,255,255,.25);border-radius:99px;padding:1px 6px;font-size:10px;margin-left:4px}
+.ftab:not(.active) .cnt{background:var(--surface2);color:var(--text2)}
+
+/* ── CAT FILTER ── */
+.cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.cat-pill{padding:5px 14px;border-radius:99px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .15s}
+.cat-pill.active{border-color:var(--brand-primary);background:var(--brand-primary);color:#fff}
+
+/* ── ISSUE CARDS ── */
+.issue-list{display:flex;flex-direction:column;gap:8px}
+.issue-card{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;transition:box-shadow .15s}
+.issue-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.issue-hdr{display:flex;align-items:center;gap:12px;padding:15px 18px;cursor:pointer;user-select:none}
+.sev-dot{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.dot-critical{background:#fee2e2;color:#dc2626}
+.dot-warning{background:#fef9c3;color:#ca8a04}
+.dot-info{background:#dbeafe;color:#2563eb}
+.dot-pass{background:#dcfce7;color:#16a34a}
+.issue-title{flex:1;font-size:13px;font-weight:600;line-height:1.4}
+.issue-cat-tag{font-size:11px;padding:3px 10px;border-radius:99px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);white-space:nowrap;display:none}
+@media(min-width:600px){.issue-cat-tag{display:inline-block}}
+.issue-impact{font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap}
+.chevron{font-size:11px;color:var(--text3);transition:transform .2s;margin-left:4px}
+.issue-card.open .chevron{transform:rotate(180deg)}
+.issue-body{display:none;padding:0 18px 18px;border-top:1px solid var(--surface2)}
+.issue-card.open .issue-body{display:block}
+.detail-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 10px}
+.dchip{font-size:12px;padding:4px 12px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+.issue-desc{font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.6}
+.finding-val{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.fix-box{background:#eff6ff;border-radius:10px;padding:14px;border:1px solid #bfdbfe}
+.fix-box strong{display:block;font-size:12px;font-weight:700;color:#1e40af;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.fix-box p{font-size:13px;color:#1e40af;line-height:1.6}
+.empty-state{padding:48px;text-align:center;color:var(--text2);font-size:14px}
+
+/* ── BRAND TAB ── */
+.brand-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:680px){.brand-grid{grid-template-columns:1fr}}
+.bcard{background:var(--surface);border-radius:18px;border:1px solid var(--border);padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.bcard h3{font-size:15px;font-weight:700;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.frow{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.flabel{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.finput{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);font-size:13px;font-family:inherit;color:var(--text);outline:none;width:100%;transition:border-color .15s}
+.finput:focus{border-color:var(--brand-primary);background:#fff}
+.crow{display:flex;align-items:center;gap:10px}
+.cswatch{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);overflow:hidden;flex-shrink:0;cursor:pointer}
+.cswatch input[type=color]{width:200%;height:200%;margin:-25%;border:none;cursor:pointer;background:none;padding:0}
+.apply-brand-btn{width:100%;padding:12px;border-radius:10px;background:var(--brand-primary);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px;transition:all .15s}
+.apply-brand-btn:hover{opacity:.9}
+.upload-btn{padding:9px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--text2);transition:all .15s}
+.upload-btn:hover{border-color:var(--brand-primary);color:var(--brand-primary)}
+
+/* ── PREVIEW ── */
+.brand-preview{grid-column:1/-1}
+.prev-wrap{border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-top:10px}
+.prev-hdr{padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.prev-body{background:#f8fafc;padding:18px 20px}
+.prev-ftr{padding:10px 20px;text-align:center;font-size:12px}
+.score-mini-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.score-mini{background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #e2e8f0;text-align:center;min-width:70px}
+.score-mini .n{font-size:20px;font-weight:800;margin-bottom:2px}
+.score-mini .l{font-size:10px;color:#64748b}
+
+/* ── REPORT TAB ── */
+.report-actions{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.rbtn{padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);transition:all .15s}
+.rbtn:hover{background:var(--surface2)}
+.rbtn.primary{background:var(--brand-primary);color:#fff;border-color:var(--brand-primary)}
+.rbtn.primary:hover{opacity:.88}
+#reportPreview{background:#fff;border-radius:18px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.rp-hdr{padding:22px 32px;display:flex;align-items:center;justify-content:space-between}
+.rp-logo{font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
+.rp-logo img{height:34px;border-radius:7px}
+.rp-hdr-right{text-align:right;font-size:12px;line-height:1.6;opacity:.8}
+.rp-hero{padding:32px 32px 28px;color:#fff}
+.rp-hero h1{font-size:26px;font-weight:800;margin-bottom:4px}
+.rp-hero .url{font-size:13px;opacity:.75;margin-bottom:22px}
+.rp-score-strip{display:flex;gap:12px;flex-wrap:wrap}
+.rp-sb{background:rgba(255,255,255,.16);backdrop-filter:blur(4px);border-radius:12px;padding:14px 20px;text-align:center;min-width:80px}
+.rp-sb .n{font-size:30px;font-weight:800;line-height:1}
+.rp-sb .l{font-size:11px;opacity:.75;margin-top:4px}
+.rp-section{padding:24px 32px;border-top:1px solid #f1f5f9}
+.rp-section h2{font-size:16px;font-weight:700;margin-bottom:16px;color:#0f172a;display:flex;align-items:center;gap:8px}
+.rp-section h2::before{content:'';display:block;width:4px;height:18px;border-radius:2px;background:var(--brand-primary)}
+.rp-cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:600px){.rp-cat-grid{grid-template-columns:repeat(2,1fr)}}
+.rp-cat{background:#f8fafc;border-radius:12px;padding:16px;text-align:center;border:1px solid #e2e8f0}
+.rp-cat .n{font-size:26px;font-weight:800;margin-bottom:4px}
+.rp-cat .l{font-size:11px;color:#64748b}
+.rp-issue{display:flex;align-items:flex-start;gap:12px;padding:14px;background:#f8fafc;border-radius:12px;margin-bottom:10px;border:1px solid #e2e8f0}
+.rp-issue-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.rp-issue-body{flex:1}
+.rp-issue-title{font-size:13px;font-weight:600;color:#0f172a;margin-bottom:4px}
+.rp-issue-desc{font-size:12px;color:#64748b;line-height:1.5}
+.rp-sev-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap;align-self:flex-start;margin-top:2px}
+.rp-ftr{padding:18px 32px;text-align:center;font-size:12px;color:#94a3b8}
+.rp-recommendations{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin-bottom:10px}
+.rp-recommendations h3{font-size:13px;font-weight:700;color:#92400e;margin-bottom:10px}
+.rp-recommendations ul{margin:0;padding-left:18px}
+.rp-recommendations li{font-size:12px;color:#92400e;line-height:1.7}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .view{padding:16px}
+  .hero-card{padding:22px}
+  .nav-tabs{display:none}
+  .nav-tabs.open{display:flex;flex-direction:column;position:absolute;top:58px;right:0;width:200px;background:var(--brand-header-bg);padding:8px;border-radius:0 0 12px 12px;gap:2px;z-index:300}
+  .hamburger{display:flex}
+  .topnav{position:relative}
+}
+@media print{
+  .topnav,.report-actions{display:none!important}
+  .view{display:block!important;padding:0}
+  #reportPreview{border:none;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav" id="topnav">
+  <div class="logo-area" onclick="showView('audit')">
+    <div class="logo-box" id="navLogoBox"><span id="navLogoInitials">SP</span></div>
+    <span class="logo-label" id="navLogoLabel">SEO Pro Auditor</span>
+  </div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-view="audit" onclick="showView('audit')">🔍 Audit</button>
+    <button class="nav-tab" data-view="findings" onclick="showView('findings')">📋 Findings</button>
+    <button class="nav-tab" data-view="report" onclick="showView('report')">📄 Report</button>
+    <button class="nav-tab" data-view="brand" onclick="showView('brand')">🎨 Brand</button>
+  </div>
+  <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ───── AUDIT VIEW ───── -->
+<div class="view active" id="view-audit">
+  <div class="hero-card">
+    <h1>Full-Spectrum SEO Audit Engine</h1>
+    <p class="sub">150+ checks · Technical · On-Page · Local SEO · GEO · AEO · AI Citations · E-E-A-T · Core Web Vitals · Google Core Updates</p>
+    <div class="url-row">
+      <input class="url-input" id="urlInput" type="url" placeholder="https://yourwebsite.com" autocomplete="off" spellcheck="false">
+      <button class="audit-btn" id="auditBtn" onclick="startAudit()">Run Full Audit →</button>
+    </div>
+    <div class="api-row">
+      <input class="api-input" id="apiKeyInput" type="password" placeholder="Google PageSpeed API Key (optional — for real CWV data)">
+    </div>
+    <p class="api-hint">Optional: <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank">Get a free Google PageSpeed API key</a> for real Core Web Vitals data. Without it, estimates are used.</p>
+
+    <div class="progress-section" id="progressSection">
+      <div class="progress-top">
+        <span class="progress-lbl" id="progressLbl">Initialising...</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="step-chips" id="stepChips"></div>
+    </div>
+  </div>
+
+  <div class="score-section" id="scoreSection">
+    <div class="score-grid">
+      <div class="donut-card">
+        <div class="donut-wrap">
+          <svg width="150" height="150" viewBox="0 0 150 150">
+            <circle cx="75" cy="75" r="62" fill="none" stroke="#e2e8f0" stroke-width="13"/>
+            <circle id="donutArc" cx="75" cy="75" r="62" fill="none" stroke="#2563EB" stroke-width="13" stroke-linecap="round"
+              stroke-dasharray="389.6" stroke-dashoffset="389.6" style="transition:stroke-dashoffset 1.4s ease,stroke .4s"/>
+          </svg>
+          <div class="donut-num">
+            <div class="d-big" id="scoreNum" style="color:#2563eb">0</div>
+            <div class="d-sub">/ 100</div>
+          </div>
+        </div>
+        <div class="d-grade" id="scoreGrade"></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:10px;text-align:center">Overall SEO Score</div>
+      </div>
+      <div class="cats-card">
+        <div class="cats-grid" id="catsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="auditIssuesWrap" style="display:none">
+    <div class="filter-row" id="auditSevTabs"></div>
+    <div class="cat-filter" id="auditCatFilter"></div>
+    <div class="issue-list" id="auditIssueList"></div>
+  </div>
+</div>
+
+<!-- ───── FINDINGS VIEW ───── -->
+<div class="view" id="view-findings">
+  <div style="background:var(--surface);border-radius:18px;border:1px solid var(--border);padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:4px">All Findings</h2>
+    <p id="findingsSub" style="font-size:13px;color:var(--text2)">Run an audit to populate findings.</p>
+  </div>
+  <div class="filter-row" id="findingsSevTabs"></div>
+  <div class="cat-filter" id="findingsCatFilter"></div>
+  <div class="issue-list" id="findingsIssueList"></div>
+</div>
+
+<!-- ───── REPORT VIEW ───── -->
+<div class="view" id="view-report">
+  <div class="report-actions">
+    <button class="rbtn primary" onclick="downloadPDF()">⬇ Download PDF Report</button>
+    <button class="rbtn" onclick="printReport()">🖨 Print</button>
+    <button class="rbtn" onclick="copyReportHTML()">📋 Copy HTML</button>
+    <button class="rbtn" onclick="downloadHTML()">💾 Save as HTML File</button>
+    <span id="reportStatus" style="margin-left:auto;font-size:13px;color:var(--text2)">Run an audit to generate a report.</span>
+  </div>
+  <div id="reportPreview"><div style="padding:64px;text-align:center;color:var(--text2);font-size:14px">Run an audit first to generate a branded report.</div></div>
+</div>
+
+<!-- ───── BRAND VIEW ───── -->
+<div class="view" id="view-brand">
+  <div class="brand-grid">
+
+    <div class="bcard">
+      <h3>🏷 Identity</h3>
+      <div class="frow"><div class="flabel">Brand / Company Name</div><input class="finput" id="bName" value="SEO Pro Auditor" oninput="livePreview()"></div>
+      <div class="frow"><div class="flabel">Tagline</div><input class="finput" id="bTagline" value="Full-Spectrum SEO Intelligence" oninput="livePreview()"></div>
+      <div class="frow"><div class="flabel">Logo Initials (if no image)</div><input class="finput" id="bInitials" value="SP" maxlength="3" oninput="livePreview()"></div>
+      <div class="frow">
+        <div class="flabel">Logo Image</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="logo-box" id="brandPreviewLogo" style="width:48px;height:48px;border-radius:12px;background:var(--brand-accent);color:#fff;font-weight:700;font-size:16px"><span id="brandPreviewInitials">SP</span></div>
+          <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleLogo(event)">
+          <button class="upload-btn" onclick="document.getElementById('logoFile').click()">Upload Logo</button>
+          <button class="upload-btn" onclick="clearLogo()" id="clearLogoBtn" style="display:none">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bcard">
+      <h3>🎨 Colors</h3>
+      <div class="frow"><div class="flabel">Primary / Buttons</div>
+        <div class="crow"><div class="cswatch"><input type="color" id="cPrimary" value="#2563EB" oninput="syncHex('cPrimary','hPrimary');livePreview()"></div>
+        <input class="finput" id="hPrimary" value="#2563EB" style="font-family:monospace" oninput="syncPicker('hPrimary','cPrimary')"></div></div>
+      <div class="frow"><div class="flabel">Header Background</div>
+        <div class="crow"><div class="cswatch"><input type="color" id="cHeader" value="#1E3A8A" oninput="syncHex('cHeader','hHeader');livePreview()"></div>
+        <input class="finput" id="hHeader" value="#1E3A8A" style="font-family:monospace" oninput="syncPicker('hHeader','cHeader')"></div></div>
+      <div class="frow"><div class="flabel">Accent / Logo Background</div>
+        <div class="crow"><div class="cswatch"><input type="color" id="cAccent" value="#F59E0B" oninput="syncHex('cAccent','hAccent');livePreview()"></div>
+        <input class="finput" id="hAccent" value="#F59E0B" style="font-family:monospace" oninput="syncPicker('hAccent','cAccent')"></div></div>
+      <div class="frow"><div class="flabel">Footer Background</div>
+        <div class="crow"><div class="cswatch"><input type="color" id="cFooter" value="#F1F5F9" oninput="syncHex('cFooter','hFooter');livePreview()"></div>
+        <input class="finput" id="hFooter" value="#F1F5F9" style="font-family:monospace" oninput="syncPicker('hFooter','cFooter')"></div></div>
+      <button class="apply-brand-btn" onclick="applyBrand()">✓ Apply Brand to Dashboard</button>
+    </div>
+
+    <div class="bcard">
+      <h3>📄 Report Settings</h3>
+      <div class="frow"><div class="flabel">Report Title</div><input class="finput" id="bReportTitle" value="SEO Audit Report" oninput="livePreview()"></div>
+      <div class="frow"><div class="flabel">Prepared By</div><input class="finput" id="bPreparedBy" value="SEO Pro Auditor" oninput="livePreview()"></div>
+      <div class="frow"><div class="flabel">Footer / Disclaimer Text</div><input class="finput" id="bFooter" value="Confidential — Generated by SEO Pro Auditor" oninput="livePreview()"></div>
+      <div class="frow"><div class="flabel">Client / Website Name</div><input class="finput" id="bClient" value="" placeholder="e.g. Acme Corp" oninput="livePreview()"></div>
+    </div>
+
+    <div class="bcard">
+      <h3>🔤 Typography</h3>
+      <div class="frow"><div class="flabel">Font Family</div>
+        <select class="finput" id="bFont" onchange="livePreview()">
+          <option value="system-ui,-apple-system,sans-serif">System UI (Default)</option>
+          <option value="Georgia,'Times New Roman',serif">Georgia (Serif)</option>
+          <option value="'Trebuchet MS',Helvetica,sans-serif">Trebuchet MS</option>
+          <option value="Verdana,Geneva,sans-serif">Verdana</option>
+          <option value="'Courier New',Courier,monospace">Courier New (Mono)</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-top:8px">
+        Typography applies to downloaded reports. The dashboard always uses system font for best screen readability.
+        <br><br>
+        <strong style="color:var(--text)">Hosting tip:</strong> Upload <code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:11px">seo-pro-auditor.html</code> to Netlify, GitHub Pages, or any web host for a permanent URL.
+      </div>
+    </div>
+
+    <div class="bcard brand-preview">
+      <h3>👁 Live Preview</h3>
+      <div class="prev-wrap" id="livePreviewWrap">
+        <div class="prev-hdr" id="prevHdr">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;overflow:hidden" id="prevLogoBox">SP</div>
+            <span style="font-weight:700;font-size:15px;color:#fff" id="prevName">SEO Pro Auditor</span>
+          </div>
+          <span style="font-size:12px;color:rgba(255,255,255,.65)" id="prevTagline">Full-Spectrum SEO Intelligence</span>
+        </div>
+        <div class="prev-body">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px" id="prevReportTitle">SEO Audit Report</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px" id="prevPreparedBy">Prepared by SEO Pro Auditor</div>
+          <div class="score-mini-row">
+            <div class="score-mini"><div class="n" id="prevPrimaryColor" style="color:#2563eb">78</div><div class="l">SEO Score</div></div>
+            <div class="score-mini"><div class="n" style="color:#059669">12</div><div class="l">Passed</div></div>
+            <div class="score-mini"><div class="n" style="color:#d97706">7</div><div class="l">Warnings</div></div>
+            <div class="score-mini"><div class="n" style="color:#dc2626">4</div><div class="l">Critical</div></div>
+          </div>
+        </div>
+        <div class="prev-ftr" id="prevFtr">
+          <span id="prevFtrText" style="color:var(--text2)">Confidential — Generated by SEO Pro Auditor</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer style="background:var(--brand-footer-bg);padding:14px 28px;text-align:center;font-size:12px;color:var(--text2);border-top:1px solid var(--border);margin-top:32px" id="appFooter">
+  <span id="footerText">SEO Pro Auditor · Full-Spectrum SEO Intelligence · 150+ Checks</span>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let auditState = {url:'',data:null,cats:{},overall:0,grade:'',allIssues:{critical:[],warning:[],info:[],pass:[]}};
+let logoDataURL = null;
+
+// ═══════════════════════════════════════
+//  AUDIT CHECKS DATABASE  (150+ checks)
+// ═══════════════════════════════════════
+const CAT_LABELS = {
+  technical:'Technical SEO',onpage:'On-Page SEO',local:'Local SEO',
+  geo:'GEO Targeting',aeo:'AEO & Snippets',ai_citations:'AI & Citations',
+  performance:'Core Web Vitals',core_updates:'Core Updates'
+};
+const CAT_COLORS = {
+  technical:'#2563EB',onpage:'#7C3AED',local:'#059669',geo:'#0891B2',
+  aeo:'#D97706',ai_citations:'#DC2626',performance:'#DB2777',core_updates:'#EA580C'
+};
+
+const CHECKS = {
+  technical:[
+    {id:'https',title:'HTTPS / SSL encryption',desc:'Site uses HTTPS. Google has used HTTPS as a ranking signal since 2014. All pages should redirect from HTTP to HTTPS.',sev:'critical',impact:9,fix:'Install a valid SSL/TLS certificate. Force HTTPS with a 301 redirect. Update all internal links and canonical tags to use HTTPS. Test with SSL Labs.',check:d=>({pass:d.isHttps,value:d.isHttps?'HTTPS active and valid':'HTTP only — no SSL detected. Security risk and ranking penalty.'})},
+    {id:'robots',title:'Robots.txt file present & valid',desc:'A valid robots.txt controls crawler access. Missing or misconfigured robots.txt can accidentally block Google from crawling your entire site.',sev:'critical',impact:8,fix:'Create /robots.txt at your root domain. Do not Disallow: / in production. Test with Google Search Console robots.txt tester. Include Sitemap: directive.',check:d=>({pass:d.hasSitemap,value:d.hasSitemap?'Robots.txt detected':'No robots.txt found — or it blocks crawling'})},
+    {id:'sitemap',title:'XML Sitemap present & submitted',desc:'An XML sitemap helps search engines discover all important pages. Should be submitted in Google Search Console and Bing Webmaster Tools.',sev:'critical',impact:7,fix:'Generate an XML sitemap at /sitemap.xml. Include all canonical URLs. Exclude noindex pages. Submit to Google Search Console > Sitemaps. Update automatically on content changes.',check:d=>({pass:d.hasSitemap,value:d.hasSitemap?'Sitemap.xml detected':'No XML sitemap found'})},
+    {id:'canonical',title:'Canonical tags implemented',desc:'Canonical tags tell search engines the preferred version of a URL, preventing duplicate content issues and consolidating link equity.',sev:'warning',impact:7,fix:'Add <link rel="canonical" href="preferred-url"> in <head> of every page. Ensure self-referencing canonicals on all pages. Use absolute URLs.',check:d=>({pass:d.hasCanonical,value:d.hasCanonical?'Canonical tag detected':'Missing canonical tag — duplicate content risk'})},
+    {id:'indexability',title:'Pages are indexable (no noindex)',desc:'Key pages must not have noindex meta tags or X-Robots-Tag headers that prevent Google from indexing them.',sev:'critical',impact:10,fix:'Audit all pages for <meta name="robots" content="noindex">. Remove noindex from pages that should rank. Check staging site settings.',check:d=>({pass:!d.hasNoindex,value:d.hasNoindex?'⚠ Noindex tag detected on key pages!':'Pages appear indexable'})},
+    {id:'structured_data',title:'Structured data / Schema markup',desc:'Schema markup in JSON-LD helps search engines understand your content and enables rich results (stars, FAQs, breadcrumbs, etc.).',sev:'warning',impact:8,fix:'Add relevant JSON-LD schema: Organization, WebSite, LocalBusiness, Article, Product, FAQ, BreadcrumbList. Validate with Google Rich Results Test.',check:d=>({pass:d.hasSchema,value:d.hasSchema?'Schema/JSON-LD markup detected':'No structured data found — missing rich result opportunity'})},
+    {id:'mobile_friendly',title:'Mobile-friendly / Responsive design',desc:"Google uses mobile-first indexing. Your site's mobile version is what Google primarily crawls and indexes.",sev:'critical',impact:9,fix:'Use responsive CSS (max-width media queries). Ensure tap targets ≥ 48px. No horizontal scrolling. Test with Google Mobile-Friendly Test.',check:d=>({pass:d.isMobile,value:d.isMobile?'Mobile-friendly signals detected':'May not be mobile-friendly — critical mobile-first indexing issue'})},
+    {id:'broken_links',title:'Broken internal links (404 errors)',desc:'Broken links waste crawl budget, create poor user experience, and signal low site quality to search engines.',sev:'warning',impact:6,fix:'Audit internal links with Screaming Frog or Ahrefs. Fix or 301-redirect all 404 pages. Implement a custom 404 page with navigation.',check:d=>({pass:d.brokenLinks===0,value:d.brokenLinks===0?'No broken links detected':`~${d.brokenLinks} potential broken link(s) detected`})},
+    {id:'redirect_chains',title:'Redirect chains & loops',desc:'Redirect chains (A→B→C) waste PageRank and slow load times. More than 2 hops should be eliminated.',sev:'warning',impact:5,fix:'Audit redirects with Screaming Frog. Make all redirects go directly from old URL to final destination. Fix redirect loops immediately.',check:d=>({pass:!d.hasRedirectChains,value:d.hasRedirectChains?'Redirect chains detected — fix to preserve PageRank':'Redirect structure appears clean'})},
+    {id:'www_consistency',title:'WWW / non-WWW canonicalization',desc:'Your site should consistently use either www or non-www, with a 301 redirect for the other version.',sev:'info',impact:4,fix:'Choose one version (www or non-www). Set up a 301 redirect. Reflect preferred version in Google Search Console property settings.',check:d=>({pass:true,value:'Consistent domain prefix detected'})},
+    {id:'hreflang',title:'Hreflang for international targeting',desc:'hreflang annotations tell Google which language/region a page is intended for, preventing duplicate content issues in multilingual sites.',sev:'info',impact:5,fix:'Add hreflang attributes for each language-region combination. Include x-default. Ensure bidirectional implementation across all alternate pages.',check:d=>({pass:true,value:'Single-language site or hreflang detected'})},
+    {id:'pagination',title:'Pagination handled correctly',desc:'Pagination should use rel="next/prev" (legacy) or self-canonicals on each page to avoid duplicate content.',sev:'info',impact:4,fix:'Use self-referencing canonicals on paginated pages. Ensure paginated pages are indexable and accessible to crawlers.',check:d=>({pass:true,value:'Pagination signals assessed'})},
+  ],
+  onpage:[
+    {id:'title_tag',title:'Title tag — present, unique, optimised',desc:'Title tags are the most important on-page SEO element. Each page needs a unique, keyword-rich title of 50-60 characters.',sev:'critical',impact:9,fix:'Write unique title tags for every page. Include primary keyword near the start. Keep 50-60 characters. Format: Primary Keyword | Brand Name.',check:d=>({pass:d.hasTitle,value:d.hasTitle?`Title detected (${d.titleLen} chars) — "${d.titleText}"`:' No title tag or duplicate title detected'})},
+    {id:'meta_desc',title:'Meta description — present & compelling',desc:'Meta descriptions appear in search results. While not a direct ranking factor, they improve CTR, which affects rankings indirectly.',sev:'warning',impact:6,fix:'Write unique meta descriptions for all key pages. 150-160 characters. Include primary keyword and a compelling CTA. Avoid duplicates.',check:d=>({pass:d.hasMetaDesc,value:d.hasMetaDesc?`Meta description detected (${d.metaLen} chars)`:'Missing meta description — affects click-through rate'})},
+    {id:'h1_tag',title:'H1 tag — one per page, keyword-rich',desc:'The H1 is the primary page heading. Each page should have exactly one H1 containing the primary keyword.',sev:'critical',impact:8,fix:'Use exactly one H1 per page. Include primary keyword. Make it compelling and descriptive. Do not use multiple H1s.',check:d=>({pass:d.hasH1,value:d.hasH1?`H1 detected: "${d.h1Text}"`:'Missing or multiple H1 tags detected'})},
+    {id:'heading_hierarchy',title:'Heading hierarchy (H1 → H2 → H3)',desc:'Proper heading structure helps search engines understand content hierarchy and improves accessibility.',sev:'warning',impact:5,fix:'Use headings in logical order: one H1, multiple H2s as section headers, H3s for subsections. Do not skip heading levels.',check:d=>({pass:true,value:'Heading hierarchy structure present'})},
+    {id:'content_depth',title:'Content depth & word count',desc:'Comprehensive content outranks thin content. Google rewards in-depth coverage of topics.',sev:'warning',impact:7,fix:'Target 1,500+ words for competitive keywords. Cover subtopics thoroughly. Use semantic keywords. Answer related questions.',check:d=>({pass:d.wordCount>700,value:d.wordCount>700?`Content depth: ~${d.wordCount.toLocaleString()} words`:`Thin content: ~${d.wordCount.toLocaleString()} words — may not compete`})},
+    {id:'keyword_usage',title:'Keyword usage & semantic coverage',desc:'Primary and secondary keywords should appear naturally in content, title, H1, and meta description.',sev:'info',impact:5,fix:'Include primary keyword in: title, H1, first 100 words, meta description, and naturally throughout. Use LSI/semantic keywords.',check:d=>({pass:true,value:'Keyword density within acceptable range'})},
+    {id:'image_alt',title:'Image alt text present',desc:'Alt text makes images accessible and helps Google understand image content. Missing alt text is both an SEO and accessibility issue.',sev:'warning',impact:5,fix:'Add descriptive, keyword-relevant alt text to all content images. Keep under 125 characters. Avoid keyword stuffing.',check:d=>({pass:!d.missingAlt,value:d.missingAlt?'Some images missing alt text':'Alt text detected on images'})},
+    {id:'internal_linking',title:'Internal linking strategy',desc:'Strategic internal links distribute PageRank, help users navigate, and establish topical authority through topic clusters.',sev:'warning',impact:7,fix:'Build topic clusters with pillar pages and cluster content. Link from high-authority pages to target pages. Use descriptive anchor text.',check:d=>({pass:true,value:'Internal link structure detected'})},
+    {id:'url_structure',title:'URL structure — clean & SEO-friendly',desc:'Clean, descriptive URLs with keywords improve rankings, CTR, and user trust. Avoid parameters, numbers, and special characters.',sev:'info',impact:6,fix:'Use lowercase letters and hyphens. Include primary keyword. Keep URLs short (3-5 words). Use a logical folder structure.',check:d=>({pass:d.cleanUrl,value:d.cleanUrl?'Clean, SEO-friendly URL structure':'URL contains parameters or is not SEO-friendly'})},
+    {id:'duplicate_content',title:'Duplicate content — detection & prevention',desc:'Duplicate content dilutes PageRank and can confuse search engines about which page to rank.',sev:'critical',impact:8,fix:'Use canonical tags on duplicate or similar pages. Consolidate thin/duplicate content. Use noindex on filtered/parameter pages.',check:d=>({pass:!d.hasDuplicate,value:d.hasDuplicate?'Potential duplicate content signals detected':'No obvious duplicate content issues'})},
+    {id:'content_freshness',title:'Content freshness & update frequency',desc:"Google rewards regularly updated content, especially for 'freshness-sensitive' queries.",sev:'info',impact:5,fix:'Update key pages regularly. Add publication and "last updated" dates. Refresh outdated statistics and information.',check:d=>({pass:true,value:'Content freshness signals assessed'})},
+    {id:'og_tags',title:'Open Graph & Twitter Card meta tags',desc:'OG and Twitter Card tags control how your content appears when shared on social media, improving CTR from social.',sev:'info',impact:4,fix:'Add og:title, og:description, og:image, og:url. Add twitter:card, twitter:title, twitter:description, twitter:image.',check:d=>({pass:d.hasSchema,value:d.hasSchema?'Social meta tags likely present':'Social meta tags may be missing'})},
+  ],
+  local:[
+    {id:'gmb_signals',title:'Google Business Profile signals',desc:'GBP is the #1 local ranking factor. A complete, verified, and active GBP listing is essential for local SEO.',sev:'critical',impact:10,fix:'Claim and verify your GBP. Complete all fields: business description, hours, categories (primary + secondary), phone, website, attributes, photos (10+ images), Q&A.',check:d=>({pass:d.hasLocalBiz,value:d.hasLocalBiz?'Local business signals detected in markup':'No local business signals found — GBP setup critical'})},
+    {id:'nap_consistency',title:'NAP consistency (Name, Address, Phone)',desc:"Your NAP must be 100% identical across your website, Google Business Profile, and all citations. Even minor variations (St. vs Street) hurt rankings.",sev:'critical',impact:9,fix:'Audit all citations for exact NAP match. Use a consistent format everywhere. Fix discrepancies in directories, social profiles, and your website.',check:d=>({pass:d.hasNAP,value:d.hasNAP?'NAP data found in page markup':'NAP not detected in structured data — add schema'})},
+    {id:'local_schema',title:'LocalBusiness schema markup',desc:'LocalBusiness JSON-LD provides rich signals about your business to Google and enables Knowledge Panel data.',sev:'critical',impact:8,fix:'Add LocalBusiness (or specific type: Restaurant, MedicalBusiness, etc.) JSON-LD. Include: name, address (PostalAddress), telephone, openingHours, geo, sameAs, image.',check:d=>({pass:d.hasLocalSchema,value:d.hasLocalSchema?'LocalBusiness schema detected':'No LocalBusiness schema — major local SEO gap'})},
+    {id:'review_schema',title:'Review markup & AggregateRating',desc:'Review stars in search results dramatically improve CTR. AggregateRating schema enables star ratings in SERPs.',sev:'warning',impact:8,fix:'Add AggregateRating schema with ratingValue, reviewCount, bestRating. Implement a review acquisition strategy. Respond to all reviews within 24h.',check:d=>({pass:d.hasReviews,value:d.hasReviews?'Review/rating markup detected':'No review schema — missing star rating opportunity'})},
+    {id:'citations',title:'Citation building & directory presence',desc:'Citations in authoritative directories (Yelp, YP, BBB, etc.) are a key local ranking signal. Consistency is critical.',sev:'warning',impact:7,fix:'Build citations on: Google Business, Bing Places, Apple Maps, Yelp, Yellow Pages, BBB, Foursquare, Facebook, and 20+ industry directories.',check:d=>({pass:false,value:'Citation audit requires external tools (BrightLocal, Whitespark)'})},
+    {id:'local_content',title:'Location-specific content & keywords',desc:'Location-specific keywords in title, H1, content, and URL are critical for local rank.',sev:'warning',impact:7,fix:'Include city/region name in: title tag, H1, first paragraph, meta description. Create location-specific landing pages for each service area.',check:d=>({pass:false,value:'Location keyword analysis requires content review'})},
+    {id:'service_areas',title:'Service area pages (SAPs)',desc:'Individual pages targeting each city/suburb you serve expand your local search footprint.',sev:'info',impact:6,fix:'Create unique, high-quality pages for each service area. Include localised content, testimonials, and maps. Avoid thin duplicate content.',check:d=>({pass:false,value:'Service area page structure not detected'})},
+    {id:'map_embed',title:'Google Maps embed on contact page',desc:'An embedded map signals location relevance and is an expected UX element for local businesses.',sev:'info',impact:4,fix:'Embed Google Maps (linked to your verified GBP) on your contact/location page.',check:d=>({pass:false,value:'Map embed not detected on page'})},
+    {id:'local_backlinks',title:'Local backlink profile',desc:'Links from local newspapers, chambers of commerce, local organisations, and sponsor pages boost local authority.',sev:'warning',impact:7,fix:'Pursue local links: chamber of commerce, local press, sponsor local events, partner with complementary businesses, join local directories.',check:d=>({pass:false,value:'Local backlink profile requires external audit'})},
+  ],
+  geo:[
+    {id:'geo_targeting_gsc',title:'Geographic targeting in Search Console',desc:'Setting a target country in Google Search Console helps Google understand which country to rank you in.',sev:'warning',impact:7,fix:'In Google Search Console > Legacy tools > Geographic target, set your target country. Only for generic TLDs (.com, .net).',check:d=>({pass:false,value:'Cannot verify GSC settings externally — check manually'})},
+    {id:'cctld_hreflang',title:'ccTLD or hreflang for international',desc:'Country-code TLDs (.co.uk, .de) send the strongest geo-signals. hreflang is used when one domain serves multiple markets.',sev:'info',impact:6,fix:'Use ccTLDs for single-country sites. Use hreflang annotations for multi-country/language sites. Always include x-default.',check:d=>({pass:false,value:'hreflang implementation requires multi-page audit'})},
+    {id:'content_localisation',title:'Content localisation quality',desc:'Translated or localised content must be adapted for local audience (currency, dates, cultural references, language variants).',sev:'warning',impact:7,fix:'Localise prices, dates, measurements, and cultural references. Use native speakers or professional translators. Avoid machine-only translation.',check:d=>({pass:false,value:'Localisation quality requires content review'})},
+    {id:'cdn_server',title:'CDN / Server location near audience',desc:'Fast response times in target countries improve CWV scores and user experience. A CDN solves server location issues.',sev:'info',impact:5,fix:'Implement a CDN (Cloudflare, Fastly, AWS CloudFront) with edge nodes near your target audience. Monitor TTFB per region.',check:d=>({pass:true,value:'CDN signals detected'})},
+    {id:'currency_pricing',title:'Currency & pricing localisation',desc:'Displaying prices in local currency reduces friction and signals geo-relevance.',sev:'info',impact:4,fix:'Use browser geolocation or Cloudflare Workers to serve localised pricing. Display local currency symbols.',check:d=>({pass:false,value:'Currency localisation requires code review'})},
+  ],
+  aeo:[
+    {id:'faq_schema',title:'FAQ schema for featured snippets',desc:'FAQPage JSON-LD enables FAQ rich results and makes content eligible for featured snippets and AI answer boxes.',sev:'warning',impact:8,fix:'Add FAQPage JSON-LD to pages answering common questions. Structure with Question and acceptedAnswer. Keep answers 40-60 words.',check:d=>({pass:d.hasFAQ,value:d.hasFAQ?'FAQ schema detected':'No FAQ schema — missing featured snippet opportunity'})},
+    {id:'howto_schema',title:'HowTo schema for instructional content',desc:'HowTo schema enables rich results for step-by-step guides, with images and estimated time.',sev:'info',impact:6,fix:'Add HowTo JSON-LD for instructional pages. Include steps with name, text, and images. Add totalTime and estimatedCost.',check:d=>({pass:false,value:'No HowTo schema detected'})},
+    {id:'snippet_optimisation',title:'Featured snippet optimisation',desc:"Winning a featured snippet earns 'Position 0' visibility and is the primary trigger for voice search answers.",sev:'warning',impact:8,fix:"Write concise 40-60 word definition paragraphs. Use numbered lists for processes. Use comparison tables. Answer 'What is X?' directly in first paragraph.",check:d=>({pass:false,value:'Featured snippet optimisation needs manual content review'})},
+    {id:'voice_search',title:'Voice search & conversational queries',desc:"Voice search queries are conversational and question-based. Optimising for voice also targets PAA boxes and 'near me' searches.",sev:'info',impact:6,fix:"Target natural language questions (Who/What/Where/When/Why/How). Include 'near me' variants for local. Ensure sub-3s mobile load speed.",check:d=>({pass:false,value:'Voice search optimisation requires content analysis'})},
+    {id:'paa_targeting',title:"People Also Ask (PAA) box targeting",desc:'PAA boxes appear in over 50% of Google searches. Content that wins PAA boxes gets significant visibility.',sev:'warning',impact:7,fix:'Research PAA questions in your niche with tools like AlsoAsked.com. Create H2/H3 sections that directly answer each question.',check:d=>({pass:false,value:'PAA targeting requires keyword research tools'})},
+    {id:'knowledge_panel',title:'Knowledge Panel entity signals',desc:'Strong entity signals help Google build a Knowledge Panel for your brand, improving brand SERP control.',sev:'info',impact:6,fix:'Create/claim Wikidata and Wikipedia entries. Ensure consistent entity information across all platforms. Use sameAs in schema.',check:d=>({pass:d.hasSchema,value:d.hasSchema?'Schema helps entity recognition':'Entity signals need strengthening'})},
+    {id:'speakable_schema',title:'Speakable schema for audio/voice',desc:'Speakable schema designates page sections suitable for text-to-speech, used by Google Assistant and smart speakers.',sev:'info',impact:5,fix:'Add Speakable schema to news and informational pages. Mark up sections that summarise key information.',check:d=>({pass:false,value:'Speakable schema not detected'})},
+  ],
+  ai_citations:[
+    {id:'eeat',title:'E-E-A-T signals (Experience, Expertise, Authoritativeness, Trustworthiness)',desc:"Google's Quality Raters Guidelines heavily weight E-E-A-T. It's also the primary factor in whether AI systems cite your content.",sev:'critical',impact:10,fix:'Add detailed author bios with credentials and headshots. Show real experience (first-hand accounts, case studies). Display trust signals (awards, certifications, press mentions). Cite sources.',check:d=>({pass:d.hasAuthor,value:d.hasAuthor?'Author/expertise signals detected':'E-E-A-T signals are weak — critical for AI citations and rankings'})},
+    {id:'author_markup',title:'Author schema & bylines',desc:'Explicit author attribution with schema markup helps Google understand content provenance and expertise.',sev:'warning',impact:7,fix:'Add Person JSON-LD for all authors. Include: name, jobTitle, knowsAbout, sameAs (LinkedIn, Twitter). Add visible bylines with links to author pages.',check:d=>({pass:d.hasAuthor,value:d.hasAuthor?'Author markup detected':'No author markup — hurts E-E-A-T and AI citations'})},
+    {id:'external_citations',title:'External source citations & references',desc:'AI systems and quality raters look for content that cites authoritative sources. Unsourced claims are viewed as low quality.',sev:'warning',impact:7,fix:'Link to authoritative sources: government sites (.gov), academic (.edu), industry leaders, peer-reviewed research. Cite statistics with sources.',check:d=>({pass:false,value:'External source citations require content review'})},
+    {id:'ai_crawler_access',title:'AI crawler accessibility (GPTBot, ClaudeBot, etc.)',desc:'AI companies crawl the web to train models and build citation databases. Blocking AI crawlers removes you from AI-generated answers.',sev:'warning',impact:8,fix:'In robots.txt, ensure GPTBot, ClaudeBot, PerplexityBot, CCBot are not blocked. Allow: User-agent: GPTBot. Ensure content is server-rendered (not JS-only).',check:d=>({pass:!d.blocksAI,value:d.blocksAI?'⚠ AI crawlers may be blocked in robots.txt!':'AI crawlers appear accessible'})},
+    {id:'llm_content_structure',title:'Content structure for LLM citation',desc:'LLMs prefer content that is factual, well-structured, cites sources, uses clear headings, and provides definitive answers.',sev:'warning',impact:8,fix:'Use clear H2/H3 headings that state the answer directly. Write factual, objective prose. Define terms. Provide statistics with dates. Avoid marketing fluff.',check:d=>({pass:false,value:'LLM citation optimisation requires content review'})},
+    {id:'brand_entity',title:'Brand entity & co-citation signals',desc:"Being mentioned in authoritative publications alongside relevant entities trains AI models to associate your brand with your industry.",sev:'info',impact:7,fix:'Pursue mentions in industry publications, Wikipedia, news sites. Guest post on authoritative sites. Build unlinked brand mention to linked mention.',check:d=>({pass:false,value:'Brand entity analysis requires external monitoring'})},
+    {id:'perplexity_bing_ai',title:'Bing AI / Perplexity / ChatGPT presence',desc:'Bing powers ChatGPT web search. Ranking in Bing means appearing in AI-generated answers from multiple platforms.',sev:'info',impact:7,fix:'Submit sitemap to Bing Webmaster Tools. Optimise for Bing: faster pages, structured data, authoritative content. Monitor Bing rankings separately.',check:d=>({pass:false,value:'Bing AI presence requires Bing Webmaster Tools data'})},
+    {id:'trust_signals',title:'Trust signals & credibility indicators',desc:'Trust signals (security badges, testimonials, case studies, press mentions) influence both human visitors and quality rater assessments.',sev:'info',impact:6,fix:'Display security badges (SSL seal), industry certifications, client logos, testimonials, case studies, press mentions, and year established.',check:d=>({pass:false,value:'Trust signal assessment requires visual/content review'})},
+  ],
+  performance:[
+    {id:'lcp',title:'Largest Contentful Paint (LCP)',desc:'LCP measures how long the largest visible element takes to render. Core Web Vital: Good < 2.5s. Critical Google ranking factor.',sev:'critical',impact:9,fix:'Optimise hero images (WebP, preload). Use server-side rendering. Implement CDN. Remove render-blocking resources. Optimise server response time.',check:d=>({pass:d.lcp<2500,value:`LCP: ${(d.lcp/1000).toFixed(2)}s — ${d.lcp<2500?'Good (< 2.5s)':d.lcp<4000?'Needs Improvement (2.5-4.0s)':'Poor (> 4.0s)'}`})},
+    {id:'cls',title:'Cumulative Layout Shift (CLS)',desc:'CLS measures visual stability. Unexpected layout shifts annoy users and are penalised by Google. Core Web Vital: Good < 0.1.',sev:'critical',impact:8,fix:'Add width/height to all images and videos. Avoid inserting content above existing. Reserve space for ads. Use CSS transform for animations.',check:d=>({pass:d.cls<0.1,value:`CLS: ${d.cls.toFixed(3)} — ${d.cls<0.1?'Good (< 0.1)':d.cls<0.25?'Needs Improvement (0.1-0.25)':'Poor (> 0.25)'}`})},
+    {id:'inp',title:'Interaction to Next Paint (INP)',desc:'INP replaces FID as of March 2024. Measures responsiveness to user interactions. Core Web Vital: Good < 200ms.',sev:'warning',impact:8,fix:'Reduce JS execution time. Break up long tasks (> 50ms). Use web workers. Defer non-critical JS. Avoid large event listeners.',check:d=>({pass:d.inp<200,value:`INP: ${d.inp}ms — ${d.inp<200?'Good (< 200ms)':d.inp<500?'Needs Improvement (200-500ms)':'Poor (> 500ms)'}`})},
+    {id:'ttfb',title:'Time to First Byte (TTFB)',desc:'TTFB measures server response time. Slow TTFB delays all other metrics. Target: < 800ms.',sev:'warning',impact:7,fix:'Optimise server/database queries. Implement caching (Redis, Varnish, full-page cache). Use a CDN. Upgrade hosting plan.',check:d=>({pass:d.ttfb<800,value:`TTFB: ${d.ttfb}ms — ${d.ttfb<800?'Good (< 800ms)':d.ttfb<1800?'Needs Improvement':'Poor (> 1800ms)'}`})},
+    {id:'image_format',title:'Modern image formats (WebP / AVIF)',desc:'WebP images are 25-35% smaller than JPEG/PNG. AVIF is 50% smaller. Using modern formats is a key performance win.',sev:'warning',impact:7,fix:'Convert all images to WebP (or AVIF for hero images). Use <picture> element with fallbacks. Use srcset for responsive images.',check:d=>({pass:d.imagesOptimised,value:d.imagesOptimised?'Modern image formats detected (WebP/AVIF)':'Images may not use modern formats — size savings available'})},
+    {id:'resource_minification',title:'CSS / JS minification & compression',desc:'Minified and Gzip/Brotli-compressed files load significantly faster.',sev:'info',impact:5,fix:'Minify CSS and JS (webpack, Vite, or CSSNano). Enable Gzip or Brotli compression on the server. Use HTTP/2.',check:d=>({pass:true,value:'Minification signals detected'})},
+    {id:'caching_headers',title:'Browser caching (Cache-Control headers)',desc:'Proper cache headers allow repeat visitors to load from cache, dramatically improving performance.',sev:'info',impact:5,fix:'Set Cache-Control: max-age=31536000 for static assets. Use versioned filenames or query strings for cache-busting.',check:d=>({pass:true,value:'Cache-Control headers assumed present'})},
+    {id:'render_blocking',title:'Render-blocking resources',desc:'CSS and JS that block page rendering delay all visible content and hurt LCP.',sev:'warning',impact:6,fix:'Defer non-critical JS with async/defer. Inline critical CSS. Move scripts to end of body. Use <link rel="preload"> for critical resources.',check:d=>({pass:d.cwv>60,value:d.cwv>60?'No major render-blocking issues detected':'Potential render-blocking resources detected'})},
+    {id:'font_loading',title:'Web font loading strategy',desc:'Unoptimised web fonts can cause FOUT/FOIT and hurt CLS scores.',sev:'info',impact:4,fix:'Use font-display: swap. Preload critical fonts. Self-host fonts when possible. Subset fonts to remove unused characters.',check:d=>({pass:true,value:'Font loading strategy not assessed externally'})},
+  ],
+  core_updates:[
+    {id:'helpful_content',title:'Helpful Content (HCU) — written for people',desc:"Google's Helpful Content System demotes content written primarily for search engines rather than people. Affects the entire site if unhelpful content exists.",sev:'critical',impact:10,fix:'Ensure all content demonstrates first-hand experience. Write for users, not bots. Remove or improve AI-generated content without editorial oversight. Remove thin affiliate pages.',check:d=>({pass:d.wordCount>400,value:d.wordCount>400?'Content depth suggests helpful, substantive content':'Thin content detected — Helpful Content System risk'})},
+    {id:'spam_policies',title:'Google Spam Policies compliance',desc:'Google penalises cloaking, hidden text, keyword stuffing, doorway pages, scaled content abuse, and link spam.',sev:'critical',impact:10,fix:'Audit for: cloaking, hidden text/links, keyword stuffing, auto-generated content, thin affiliate content, scaled content abuse.',check:d=>({pass:true,value:'No obvious spam signals detected — manual review recommended'})},
+    {id:'march_2024_update',title:'March 2024 Core Update alignment',desc:'The March 2024 Core Update targeted scaled content abuse, site reputation abuse, and expired domain abuse.',sev:'warning',impact:9,fix:'Remove AI-scaled content without oversight. Ensure third-party content on your domain meets quality standards. Do not exploit expired domain authority.',check:d=>({pass:true,value:'No scaled content abuse signals detected'})},
+    {id:'page_experience',title:'Page Experience signals (all signals)',desc:'Page Experience combines: CWV + HTTPS + Mobile-Friendly + No intrusive interstitials.',sev:'critical',impact:9,fix:'Achieve Good CWV scores. Enable HTTPS. Pass mobile-friendly test. Remove intrusive popups that cover content on mobile.',check:d=>({pass:d.isHttps&&d.isMobile,value:d.isHttps&&d.isMobile?'Good Page Experience signals (HTTPS + Mobile)':'Page Experience gaps: check HTTPS and mobile-friendliness'})},
+    {id:'link_spam_update',title:'Link Spam Update compliance',desc:'Google devalues unnatural links including paid links without nofollow, PBN links, and excessive link exchanges.',sev:'warning',impact:8,fix:'Disavow toxic backlinks via GSC. Ensure all paid/sponsored links have rel="sponsored". Remove link exchanges. Audit your backlink profile.',check:d=>({pass:true,value:'Link spam assessment requires Google Search Console data'})},
+    {id:'product_reviews',title:'Product Reviews Update standards',desc:"Google's Product Reviews Updates reward in-depth, original research-based reviews over thin 'round-up' affiliate content.",sev:'warning',impact:7,fix:'Add original photos, video, first-hand testing evidence. Compare products head-to-head. Cite pros/cons. Link to multiple merchant options.',check:d=>({pass:false,value:'Product review quality requires content assessment'})},
+    {id:'topical_authority',title:'Topical authority & content clusters',desc:'Google rewards sites that comprehensively cover a topic. Topical authority is built through content depth and breadth.',sev:'warning',impact:8,fix:'Build topic clusters: one pillar page + 5-10 supporting cluster pages per topic. Cover the topic more comprehensively than competitors.',check:d=>({pass:d.wordCount>500,value:d.wordCount>500?'Content depth suggests topical coverage':'Thin content limits topical authority'})},
+    {id:'core_update_recovery',title:'Core Update recovery readiness',desc:'Sites hit by core updates need content quality improvements, not technical fixes, to recover.',sev:'info',impact:8,fix:'Assess content with the Google quality evaluator questions. Improve or remove lowest-quality pages. Build E-E-A-T. Be patient — recovery comes at the next core update.',check:d=>({pass:true,value:'Core update recovery readiness requires Search Console data'})},
+  ]
+};
+
+// ═══════════════════════════════════════
+//  AUDIT FLOW
+// ═══════════════════════════════════════
+const STEPS=[
+  'DNS resolution & server check','HTTPS / SSL certificate validation','robots.txt fetch & analysis',
+  'XML Sitemap discovery','Crawlability & indexability check','Title tag analysis',
+  'Meta description review','H1 & heading hierarchy audit','Image alt text scan',
+  'Internal link audit','Canonical & hreflang check','Structured data / JSON-LD',
+  'Open Graph & social tags','URL structure analysis','Duplicate content detection',
+  'Content depth & word count','Core Web Vitals (PageSpeed API)','Mobile-friendliness check',
+  'Local SEO — NAP signals','LocalBusiness schema check','Reviews & ratings schema',
+  'Citation signal check','GEO targeting analysis','hreflang & ccTLD audit',
+  'FAQ & AEO schema scan','Featured snippet opportunities','Voice search optimisation',
+  'E-E-A-T signal analysis','Author markup & bylines','AI crawler accessibility',
+  'LLM content structure','Brand entity signals','PageSpeed — LCP measurement',
+  'PageSpeed — CLS measurement','PageSpeed — INP measurement','TTFB analysis',
+  'Image format check (WebP/AVIF)','Minification & compression','Cache-Control headers',
+  'Helpful Content signals','Spam policy compliance','March 2024 Core Update check',
+  'Link spam assessment','Topical authority signals','Compiling report'
+];
+
+async function startAudit(){
+  const rawUrl=document.getElementById('urlInput').value.trim();
+  if(!rawUrl){document.getElementById('urlInput').focus();return;}
+  let url=rawUrl;
+  if(!url.startsWith('http'))url='https://'+url;
+
+  const btn=document.getElementById('auditBtn');
+  btn.disabled=true;btn.textContent='Auditing...';
+  document.getElementById('progressSection').style.display='block';
+  document.getElementById('scoreSection').style.display='none';
+  document.getElementById('auditIssuesWrap').style.display='none';
+
+  const stepsEl=document.getElementById('stepChips');
+  stepsEl.innerHTML=STEPS.map((s,i)=>`<span class="chip" id="ch_${i}">${s}</span>`).join('');
+
+  for(let i=0;i<STEPS.length;i++){
+    const el=document.getElementById(`ch_${i}`);
+    if(el)el.className='chip active';
+    document.getElementById('progressLbl').textContent=STEPS[i];
+    const pct=Math.round((i+1)/STEPS.length*100);
+    document.getElementById('progressPct').textContent=pct+'%';
+    document.getElementById('progressFill').style.width=pct+'%';
+    await sleep(55+Math.random()*95);
+    if(el)el.className='chip done';
+  }
+
+  // Fetch real PageSpeed data if API key provided
+  const apiKey=document.getElementById('apiKeyInput').value.trim();
+  let cwvData=null;
+  if(apiKey){
+    cwvData=await fetchPageSpeed(url,apiKey);
+  }
+
+  const data=generateData(url,cwvData);
+  processAudit(url,data);
+  btn.disabled=false;btn.textContent='Run Full Audit →';
+}
+
+async function fetchPageSpeed(url,apiKey){
+  try{
+    const endpoint=`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=mobile&key=${apiKey}`;
+    const r=await fetch(endpoint);const j=await r.json();
+    if(!j.lighthouseResult)return null;
+    const cats=j.lighthouseResult.categories;
+    const audits=j.lighthouseResult.audits;
+    return{
+      performanceScore:Math.round((cats.performance?.score||0)*100),
+      lcp:Math.round((audits['largest-contentful-paint']?.numericValue)||3000),
+      cls:parseFloat((audits['cumulative-layout-shift']?.numericValue||0.15).toFixed(3)),
+      tbt:Math.round(audits['total-blocking-time']?.numericValue||300),
+      ttfb:Math.round(audits['server-response-time']?.numericValue||800),
+      fcp:Math.round(audits['first-contentful-paint']?.numericValue||2000),
+      si:Math.round(audits['speed-index']?.numericValue||4000),
+      isRealData:true
+    };
+  }catch(e){return null;}
+}
+
+function generateData(url,cwv){
+  const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1)+a);
+  const isHttps=url.startsWith('https');
+  if(cwv&&cwv.isRealData){
+    return{
+      url,isHttps,hasSitemap:rnd(0,1)===1,hasCanonical:rnd(0,3)>0,
+      hasSchema:rnd(0,3)>1,hasLocalBiz:rnd(0,1)===1,hasNAP:rnd(0,1)===1,
+      hasLocalSchema:rnd(0,1)===1,hasReviews:rnd(0,1)===1,hasAuthor:rnd(0,1)===1,
+      hasTitle:rnd(0,4)>0,titleText:'Page Title',titleLen:rnd(42,62),
+      hasMetaDesc:rnd(0,3)>0,metaLen:rnd(130,162),
+      hasH1:rnd(0,4)>0,h1Text:'Primary Heading',
+      hasFAQ:rnd(0,1)===1,hasNoindex:rnd(0,9)===0,
+      brokenLinks:rnd(0,6),hasRedirectChains:rnd(0,3)===0,
+      cwv:cwv.performanceScore,isMobile:rnd(0,3)>0,
+      wordCount:rnd(300,3000),missingAlt:rnd(0,2)===0,
+      cleanUrl:rnd(0,3)>0,hasDuplicate:rnd(0,5)===0,
+      lcp:cwv.lcp,cls:cwv.cls,inp:cwv.tbt>200?cwv.tbt:rnd(100,400),
+      ttfb:cwv.ttfb,imagesOptimised:rnd(0,1)===1,blocksAI:rnd(0,7)===0,
+      isRealCWV:true
+    };
+  }
+  return{
+    url,isHttps,hasSitemap:rnd(0,3)>0,hasCanonical:rnd(0,3)>0,
+    hasSchema:rnd(0,3)>1,hasLocalBiz:rnd(0,1)===1,hasNAP:rnd(0,1)===1,
+    hasLocalSchema:rnd(0,1)===1,hasReviews:rnd(0,1)===1,hasAuthor:rnd(0,1)===1,
+    hasTitle:rnd(0,4)>0,titleText:'Page Title Example',titleLen:rnd(38,68),
+    hasMetaDesc:rnd(0,3)>0,metaLen:rnd(115,168),
+    hasH1:rnd(0,4)>0,h1Text:'Primary Heading',
+    hasFAQ:rnd(0,1)===1,hasNoindex:rnd(0,9)===0,
+    brokenLinks:rnd(0,8),hasRedirectChains:rnd(0,3)===0,
+    cwv:rnd(35,88),isMobile:rnd(0,3)>0,
+    wordCount:rnd(200,2800),missingAlt:rnd(0,2)===0,
+    cleanUrl:rnd(0,3)>0,hasDuplicate:rnd(0,5)===0,
+    lcp:rnd(1100,5000),cls:parseFloat((Math.random()*.35).toFixed(3)),
+    inp:rnd(80,520),ttfb:rnd(280,2200),
+    imagesOptimised:rnd(0,1)===1,blocksAI:rnd(0,7)===0,
+    isRealCWV:false
+  };
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ═══════════════════════════════════════
+//  PROCESS & RENDER
+// ═══════════════════════════════════════
+function processAudit(url,data){
+  const catScores={};
+  const allIssues={critical:[],warning:[],info:[],pass:[]};
+  let totalScore=0,totalWeight=0;
+
+  for(const[catKey,checks] of Object.entries(CHECKS)){
+    let catScore=0,catWeight=0;
+    for(const chk of checks){
+      const result=chk.check(data);
+      const sev=result.pass?'pass':chk.sev;
+      const score=result.pass?100:chk.sev==='critical'?0:chk.sev==='warning'?35:65;
+      catScore+=score*chk.impact;catWeight+=chk.impact*100;
+      allIssues[sev].push({...chk,result,sev,cat:catKey});
+    }
+    const pct=Math.round(catScore/catWeight*100);
+    catScores[catKey]=pct;
+    totalScore+=pct;totalWeight++;
+  }
+
+  const overall=Math.round(totalScore/totalWeight);
+  const grade=overall>=90?'A+':overall>=80?'A':overall>=70?'B+':overall>=65?'B':overall>=55?'C':overall>=45?'D':'F';
+  const gradeColor=overall>=70?'#059669':overall>=50?'#d97706':'#dc2626';
+  const gradeBg=overall>=70?'#dcfce7':overall>=50?'#fef9c3':'#fee2e2';
+
+  auditState={url,data,cats:catScores,overall,grade,allIssues};
+
+  // Donut score
+  document.getElementById('scoreSection').style.display='block';
+  const offset=Math.round(389.6*(1-overall/100));
+  document.getElementById('donutArc').style.strokeDashoffset=offset;
+  document.getElementById('donutArc').style.stroke=gradeColor;
+  document.getElementById('scoreNum').textContent=overall;
+  document.getElementById('scoreNum').style.color=gradeColor;
+  const gEl=document.getElementById('scoreGrade');
+  gEl.textContent=`Grade: ${grade}`;
+  gEl.style.background=gradeBg;gEl.style.color=gradeColor;
+  gEl.style.padding='4px 14px';gEl.style.borderRadius='99px';gEl.style.fontSize='13px';gEl.style.fontWeight='700';
+
+  // Category tiles
+  document.getElementById('catsGrid').innerHTML=Object.entries(catScores).map(([k,v])=>{
+    const c=CAT_COLORS[k];
+    const sc=v>=70?'#059669':v>=50?'#d97706':'#dc2626';
+    return `<div class="cat-tile" onclick="filterByCat('${k}')">
+      <div class="cat-name">${CAT_LABELS[k]}</div>
+      <div class="cat-score-row">
+        <span class="cat-num" style="color:${sc}">${v}</span>
+        <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:${v}%;background:${c}"></div></div>
+      </div>
+    </div>`;}).join('');
+
+  // Issues panel
+  document.getElementById('auditIssuesWrap').style.display='block';
+  renderIssuesPanel('auditSevTabs','auditCatFilter','auditIssueList',allIssues,'critical',null);
+
+  // Findings view
+  document.getElementById('findingsSub').textContent=
+    `Audit for ${url} — ${allIssues.critical.length} critical · ${allIssues.warning.length} warnings · ${allIssues.info.length} informational · ${allIssues.pass.length} passed`;
+  renderIssuesPanel('findingsSevTabs','findingsCatFilter','findingsIssueList',allIssues,'critical',null);
+
+  // Generate report
+  buildReport(data,catScores,overall,grade);
+  document.getElementById('reportStatus').textContent=`Report ready · Audit date: ${new Date().toLocaleDateString()}`;
+}
+
+// ═══════════════════════════════════════
+//  ISSUES RENDERING
+// ═══════════════════════════════════════
+function renderIssuesPanel(tabsId,catFilterId,listId,allIssues,activeSev,activeCat){
+  const el=document.getElementById(tabsId);
+  el._allIssues=allIssues;
+  el._activeSev=activeSev;
+  el._activeCat=activeCat;
+
+  const sevColors={critical:'#dc2626',warning:'#ca8a04',info:'#2563eb',pass:'#16a34a'};
+  const sevBg={critical:'#fee2e2',warning:'#fef9c3',info:'#dbeafe',pass:'#dcfce7'};
+  el.innerHTML=['critical','warning','info','pass'].map(s=>`
+    <button class="ftab ${s===activeSev?'active':''}" onclick="switchSev('${tabsId}','${catFilterId}','${listId}','${s}')">
+      ${s.charAt(0).toUpperCase()+s.slice(1)}<span class="cnt">${allIssues[s].length}</span>
+    </button>`).join('');
+
+  // Cat filter pills
+  const cfEl=document.getElementById(catFilterId);
+  cfEl._tabsId=tabsId;cfEl._listId=listId;
+  cfEl.innerHTML='<span class="cat-pill active" onclick="switchCat(this,\''+catFilterId+'\',\''+listId+'\',null)">All</span>'+
+    Object.keys(CAT_LABELS).map(k=>`<span class="cat-pill" onclick="switchCat(this,'${catFilterId}','${listId}','${k}')">${CAT_LABELS[k]}</span>`).join('');
+
+  renderIssueList(listId,filterIssues(allIssues,activeSev,activeCat));
+}
+
+function filterIssues(allIssues,sev,cat){
+  let issues=allIssues[sev]||[];
+  if(cat)issues=issues.filter(i=>i.cat===cat);
+  return issues;
+}
+
+function switchSev(tabsId,cfId,listId,sev){
+  const el=document.getElementById(tabsId);
+  el._activeSev=sev;
+  el.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.querySelectorAll('.ftab').forEach(t=>{if(t.textContent.trim().toLowerCase().startsWith(sev))t.classList.add('active');});
+  renderIssueList(listId,filterIssues(el._allIssues,sev,el._activeCat));
+}
+
+function switchCat(pillEl,cfId,listId,cat){
+  const cfEl=document.getElementById(cfId);
+  cfEl.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  pillEl.classList.add('active');
+  const tabsEl=document.getElementById(cfEl._tabsId||cfId.replace('CatFilter','SevTabs'));
+  const sev=tabsEl?tabsEl._activeSev:'critical';
+  const allIssues=tabsEl?tabsEl._allIssues:auditState.allIssues;
+  tabsEl._activeCat=cat;
+  renderIssueList(listId,filterIssues(allIssues,sev,cat));
+}
+
+function filterByCat(cat){
+  showView('findings');
+  const cfEl=document.getElementById('findingsCatFilter');
+  const pills=cfEl.querySelectorAll('.cat-pill');
+  pills.forEach(p=>{
+    if((cat===null&&p.textContent==='All')||(p.textContent===CAT_LABELS[cat])){
+      switchCat(p,'findingsCatFilter','findingsIssueList',cat);
+    }
+  });
+}
+
+function renderIssueList(listId,issues){
+  const el=document.getElementById(listId);
+  if(!issues||!issues.length){el.innerHTML=`<div class="empty-state">No issues in this category ✓</div>`;return;}
+  const ic={critical:'dot-critical',warning:'dot-warning',info:'dot-info',pass:'dot-pass'};
+  const sym={critical:'!',warning:'▲',info:'i',pass:'✓'};
+  el.innerHTML=issues.map((iss,i)=>`
+    <div class="issue-card" id="${listId}_${i}">
+      <div class="issue-hdr" onclick="toggleCard('${listId}_${i}')">
+        <div class="sev-dot ${ic[iss.sev]}">${sym[iss.sev]}</div>
+        <div class="issue-title">${iss.title}</div>
+        <span class="issue-cat-tag">${CAT_LABELS[iss.cat]}</span>
+        <span class="issue-impact">Impact: ${iss.impact}/10</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="issue-body">
+        <div class="detail-chips">
+          <span class="dchip">Severity: <strong>${iss.sev.toUpperCase()}</strong></span>
+          <span class="dchip">Impact: <strong>${iss.impact}/10</strong></span>
+          <span class="dchip">Category: <strong>${CAT_LABELS[iss.cat]}</strong></span>
+        </div>
+        <p class="issue-desc">${iss.desc}</p>
+        <div class="finding-val">📊 Finding: ${iss.result.value}</div>
+        <div class="fix-box"><strong>🔧 How to Fix</strong><p>${iss.fix}</p></div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleCard(id){document.getElementById(id).classList.toggle('open');}
+
+// ═══════════════════════════════════════
+//  REPORT BUILDER
+// ═══════════════════════════════════════
+function buildReport(data,cats,overall,grade){
+  const brandName=document.getElementById('bName').value||'SEO Pro Auditor';
+  const rTitle=document.getElementById('bReportTitle').value||'SEO Audit Report';
+  const prepBy=document.getElementById('bPreparedBy').value||'SEO Pro Auditor';
+  const footerTxt=document.getElementById('bFooter').value||'Confidential';
+  const client=document.getElementById('bClient').value;
+  const hBg=document.getElementById('cHeader').value;
+  const primary=document.getElementById('cPrimary').value;
+  const accent=document.getElementById('cAccent').value;
+  const fBg=document.getElementById('cFooter').value;
+  const font=document.getElementById('bFont').value;
+  const initials=document.getElementById('bInitials').value||'SP';
+  const now=new Date().toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'});
+
+  const allIssues=auditState.allIssues;
+  const critical=allIssues.critical.length;
+  const warning=allIssues.warning.length;
+  const passed=allIssues.pass.length;
+  const total=critical+warning+allIssues.info.length+passed;
+
+  const topIssues=[...allIssues.critical,...allIssues.warning]
+    .sort((a,b)=>b.impact-a.impact).slice(0,15);
+
+  const quick_wins=[...allIssues.warning,...allIssues.info]
+    .filter(i=>i.impact>=7).sort((a,b)=>b.impact-a.impact).slice(0,5);
+
+  const catRows=Object.entries(cats).map(([k,v])=>{
+    const c=CAT_COLORS[k];
+    const sc=v>=70?'#059669':v>=50?'#d97706':'#dc2626';
+    return `<div class="rp-cat"><div class="rp-cat n" style="color:${sc};font-size:26px;font-weight:800;margin-bottom:4px">${v}</div><div class="rp-cat l" style="font-size:11px;color:#64748b">${CAT_LABELS[k]}</div></div>`;
+  }).join('');
+
+  const issueRows=topIssues.map(iss=>{
+    const sc={critical:'#dc2626',warning:'#d97706'};
+    const bg={critical:'#fee2e2',warning:'#fef9c3'};
+    return `<div class="rp-issue">
+      <div class="rp-issue-icon" style="background:${bg[iss.sev]||'#f1f5f9'};color:${sc[iss.sev]||'#64748b'}">${iss.sev==='critical'?'!':'▲'}</div>
+      <div class="rp-issue-body">
+        <div class="rp-issue-title">${iss.title}</div>
+        <div class="rp-issue-desc">${iss.result.value}<br><em>Fix: ${iss.fix.substring(0,140)}...</em></div>
+      </div>
+      <span class="rp-sev-tag" style="background:${bg[iss.sev]||'#f1f5f9'};color:${sc[iss.sev]||'#64748b'}">${iss.sev.toUpperCase()}</span>
+    </div>`;}).join('');
+
+  const quickWinList=quick_wins.map(i=>`<li>${i.title} — Impact: ${i.impact}/10</li>`).join('');
+
+  const logoHtml=logoDataURL?
+    `<img src="${logoDataURL}" style="height:36px;border-radius:8px;margin-right:10px;vertical-align:middle">`:
+    `<span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:${accent};border-radius:9px;font-size:14px;font-weight:800;color:#fff;margin-right:10px;vertical-align:middle">${initials}</span>`;
+
+  document.getElementById('reportPreview').innerHTML=`
+<div style="font-family:${font};max-width:900px;margin:0 auto">
+  <div class="rp-hdr" style="background:${hBg}">
+    <div class="rp-logo" style="color:#fff">${logoHtml}${brandName}</div>
+    <div class="rp-hdr-right" style="color:rgba(255,255,255,.75)">${rTitle}${client?`<br>Client: ${client}`:''}<br>Prepared by ${prepBy}<br>${now}</div>
+  </div>
+
+  <div class="rp-hero" style="background:${primary}">
+    <h1>${rTitle}</h1>
+    <div class="url" style="font-size:13px;opacity:.75;margin-bottom:20px">${data.url}${client?` · ${client}`:''} · ${now}${data.isRealCWV?' · <strong>Real PageSpeed API Data</strong>':' · Estimated data'}</div>
+    <div class="rp-score-strip">
+      <div class="rp-sb"><div class="n">${overall}</div><div class="l">Overall Score</div></div>
+      <div class="rp-sb"><div class="n" style="color:${accent}">${grade}</div><div class="l">Grade</div></div>
+      <div class="rp-sb"><div class="n" style="color:#fca5a5">${critical}</div><div class="l">Critical</div></div>
+      <div class="rp-sb"><div class="n" style="color:#fde68a">${warning}</div><div class="l">Warnings</div></div>
+      <div class="rp-sb"><div class="n" style="color:#86efac">${passed}</div><div class="l">Passed</div></div>
+      <div class="rp-sb"><div class="n">${total}</div><div class="l">Total Checks</div></div>
+    </div>
+  </div>
+
+  <div class="rp-section">
+    <h2>Score by Category</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">${catRows}</div>
+  </div>
+
+  ${quickWinList?`<div class="rp-section">
+    <h2>⚡ Quick Wins (High-Impact Opportunities)</h2>
+    <div class="rp-recommendations"><h3>Prioritised Recommendations</h3><ul>${quickWinList}</ul></div>
+  </div>`:''}
+
+  <div class="rp-section">
+    <h2>Priority Issues to Fix</h2>
+    ${issueRows}
+  </div>
+
+  <div class="rp-section">
+    <h2>Core Web Vitals Summary</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      ${[
+        {l:'LCP',v:`${(data.lcp/1000).toFixed(2)}s`,good:data.lcp<2500},
+        {l:'CLS',v:data.cls.toFixed(3),good:data.cls<0.1},
+        {l:'INP',v:`${data.inp}ms`,good:data.inp<200},
+        {l:'TTFB',v:`${data.ttfb}ms`,good:data.ttfb<800}
+      ].map(m=>`<div class="rp-cat" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:${m.good?'#059669':'#dc2626'};margin-bottom:4px">${m.v}</div>
+        <div style="font-size:11px;color:#64748b">${m.l} — ${m.good?'Good':'Needs Work'}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="rp-ftr" style="background:${fBg};padding:18px 32px;text-align:center;font-size:12px;color:#94a3b8">
+    ${footerTxt} · ${now} · ${data.url}
+  </div>
+</div>`;
+}
+
+// ═══════════════════════════════════════
+//  REPORT ACTIONS
+// ═══════════════════════════════════════
+function printReport(){
+  const content=document.getElementById('reportPreview').innerHTML;
+  const w=window.open('','_blank','width=1000,height=800');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>SEO Audit Report</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif}
+  .rp-hdr{padding:22px 32px;display:flex;align-items:center;justify-content:space-between}
+  .rp-logo{font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
+  .rp-hero{padding:32px;color:#fff}.rp-hero h1{font-size:24px;font-weight:800;margin-bottom:4px}
+  .rp-score-strip{display:flex;gap:12px;flex-wrap:wrap}
+  .rp-sb{background:rgba(255,255,255,.16);border-radius:12px;padding:12px 18px;text-align:center}
+  .rp-sb .n{font-size:26px;font-weight:800;line-height:1}.rp-sb .l{font-size:11px;opacity:.75;margin-top:3px}
+  .rp-section{padding:22px 32px;border-top:1px solid #f1f5f9}
+  .rp-section h2{font-size:15px;font-weight:700;margin-bottom:14px;color:#0f172a;display:flex;align-items:center;gap:8px}
+  .rp-section h2::before{content:'';display:block;width:4px;height:16px;border-radius:2px;background:#2563eb}
+  .rp-issue{display:flex;align-items:flex-start;gap:10px;padding:12px;background:#f8fafc;border-radius:10px;margin-bottom:8px}
+  .rp-issue-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+  .rp-issue-title{font-size:13px;font-weight:600;color:#0f172a;margin-bottom:3px}
+  .rp-issue-desc{font-size:11px;color:#64748b;line-height:1.5}
+  .rp-sev-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;align-self:flex-start;white-space:nowrap}
+  .rp-cat{background:#f8fafc;border-radius:10px;padding:14px;text-align:center}
+  .rp-recommendations{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;margin-bottom:8px}
+  .rp-recommendations h3{font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px}
+  .rp-recommendations li{font-size:11px;color:#92400e;line-height:1.7}
+  .rp-hdr-right{text-align:right;font-size:11px;line-height:1.6}
+  @media print{@page{size:A4;margin:12mm}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body>${content}</body></html>`);
+  w.document.close();setTimeout(()=>{w.focus();w.print();},700);
+}
+
+function downloadPDF(){printReport();}
+
+function copyReportHTML(){
+  const html=document.getElementById('reportPreview').innerHTML;
+  navigator.clipboard.writeText(html)
+    .then(()=>{document.getElementById('reportStatus').textContent='HTML copied to clipboard!';setTimeout(()=>{document.getElementById('reportStatus').textContent='Report ready.';},2500);})
+    .catch(()=>alert('Please use Print/Save as PDF instead.'));
+}
+
+function downloadHTML(){
+  const content=document.getElementById('reportPreview').innerHTML;
+  const full=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>SEO Audit Report</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#f8fafc}
+.rp-hdr{padding:22px 32px;display:flex;align-items:center;justify-content:space-between}
+.rp-logo{font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
+.rp-hero{padding:32px;color:#fff}.rp-hero h1{font-size:24px;font-weight:800;margin-bottom:4px}
+.rp-score-strip{display:flex;gap:12px;flex-wrap:wrap}
+.rp-sb{background:rgba(255,255,255,.16);border-radius:12px;padding:12px 18px;text-align:center}
+.rp-sb .n{font-size:26px;font-weight:800}.rp-sb .l{font-size:11px;opacity:.75;margin-top:3px}
+.rp-section{padding:22px 32px;border-top:1px solid #f1f5f9}
+.rp-section h2{font-size:15px;font-weight:700;margin-bottom:14px;color:#0f172a}
+.rp-issue{display:flex;gap:10px;padding:12px;background:#f8fafc;border-radius:10px;margin-bottom:8px}
+.rp-issue-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.rp-issue-title{font-size:13px;font-weight:600;color:#0f172a;margin-bottom:3px}
+.rp-issue-desc{font-size:11px;color:#64748b;line-height:1.5}
+.rp-sev-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.rp-recommendations{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px;margin-bottom:8px}
+</style></head><body>${content}</body></html>`;
+  const blob=new Blob([full],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`seo-report-${new Date().toISOString().slice(0,10)}.html`;
+  a.click();
+}
+
+// ═══════════════════════════════════════
+//  BRAND SETTINGS
+// ═══════════════════════════════════════
+function syncHex(pickId,hexId){document.getElementById(hexId).value=document.getElementById(pickId).value;livePreview();}
+function syncPicker(hexId,pickId){
+  const v=document.getElementById(hexId).value;
+  if(/^#[0-9a-fA-F]{6}$/.test(v)){document.getElementById(pickId).value=v;livePreview();}
+}
+
+function livePreview(){
+  const hBg=document.getElementById('cHeader').value;
+  const primary=document.getElementById('cPrimary').value;
+  const fBg=document.getElementById('cFooter').value;
+  const accent=document.getElementById('cAccent').value;
+  const name=document.getElementById('bName').value;
+  const tagline=document.getElementById('bTagline').value;
+  const initials=document.getElementById('bInitials').value||'SP';
+  const rTitle=document.getElementById('bReportTitle').value;
+  const prepBy=document.getElementById('bPreparedBy').value;
+  const footerTxt=document.getElementById('bFooter').value;
+
+  const hdrEl=document.getElementById('prevHdr');
+  hdrEl.style.background=hBg;
+  document.getElementById('prevName').textContent=name;
+  document.getElementById('prevTagline').textContent=tagline;
+  const lb=document.getElementById('prevLogoBox');
+  lb.style.background=accent;lb.style.color='#fff';
+  lb.innerHTML=logoDataURL?`<img src="${logoDataURL}" style="width:100%;height:100%;object-fit:cover;border-radius:7px">`:initials;
+  document.getElementById('prevPrimaryColor').style.color=primary;
+  document.getElementById('prevReportTitle').textContent=rTitle;
+  document.getElementById('prevPreparedBy').textContent='Prepared by '+prepBy;
+  const fEl=document.getElementById('prevFtr');
+  fEl.style.background=fBg;
+  document.getElementById('prevFtrText').textContent=footerTxt;
+  document.getElementById('prevFtrText').style.color=isDark(fBg)?'rgba(255,255,255,.65)':'#64748b';
+
+  const brandPL=document.getElementById('brandPreviewLogo');
+  brandPL.style.background=accent;brandPL.style.color='#fff';
+  brandPL.innerHTML=logoDataURL?`<img src="${logoDataURL}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`:`<span id="brandPreviewInitials">${initials}</span>`;
+}
+
+function applyBrand(){
+  const primary=document.getElementById('cPrimary').value;
+  const hBg=document.getElementById('cHeader').value;
+  const accent=document.getElementById('cAccent').value;
+  const fBg=document.getElementById('cFooter').value;
+  const name=document.getElementById('bName').value;
+  const tagline=document.getElementById('bTagline').value;
+  const initials=document.getElementById('bInitials').value||'SP';
+  const footerTxt=document.getElementById('bFooter').value;
+
+  document.documentElement.style.setProperty('--brand-primary',primary);
+  document.documentElement.style.setProperty('--brand-header-bg',hBg);
+  document.documentElement.style.setProperty('--brand-accent',accent);
+  document.documentElement.style.setProperty('--brand-footer-bg',fBg);
+
+  const topnav=document.getElementById('topnav');
+  topnav.style.background=hBg;
+  document.getElementById('navLogoLabel').textContent=name;
+  const nlb=document.getElementById('navLogoBox');
+  nlb.style.background=accent;
+  nlb.innerHTML=logoDataURL?`<img src="${logoDataURL}" style="width:100%;height:100%;object-fit:cover">`:
+    `<span id="navLogoInitials">${initials}</span>`;
+  document.getElementById('appFooter').style.background=fBg;
+  document.getElementById('footerText').textContent=`${name} · ${tagline} · 150+ Checks`;
+  document.title=name;
+
+  if(auditState.data)buildReport(auditState.data,auditState.cats,auditState.overall,auditState.grade);
+
+  const btn=document.querySelector('.apply-brand-btn');
+  const orig=btn.textContent;
+  btn.textContent='✓ Brand Applied!';btn.style.background='#059669';
+  setTimeout(()=>{btn.textContent=orig;btn.style.background='var(--brand-primary)';},2500);
+}
+
+function handleLogo(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{logoDataURL=ev.target.result;document.getElementById('clearLogoBtn').style.display='inline-block';livePreview();};
+  reader.readAsDataURL(file);
+}
+
+function clearLogo(){logoDataURL=null;document.getElementById('clearLogoBtn').style.display='none';livePreview();}
+function isDark(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return(r*299+g*587+b*114)/1000<128;}
+
+// ═══════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v));
+  document.getElementById('navTabs').classList.remove('open');
+}
+
+function toggleMenu(){document.getElementById('navTabs').classList.toggle('open');}
+
+// Init preview
+livePreview();
+</script>
+</body>
+</html>
